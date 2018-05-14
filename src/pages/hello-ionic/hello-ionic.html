@@ -3,23 +3,66 @@
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
-    <ion-title>Hello Ionic</ion-title>
+    <ion-title>Bikes</ion-title>
   </ion-navbar>
 </ion-header>
 
 
 <ion-content padding>
 
-  <h3>Welcome to your first Ionic app!</h3>
+  <div fxLayout="column" fxLayout.xs="column" fxLayoutGap="10px" fxLayoutGap.xs="0">
+    <main class="content" fxLayout="column" align="center">
+      <h1>Timer</h1>
+      <div class="progress-wrapper" *ngIf="maxVal">
+        <div class="text" *ngIf="!isFinished">
+          {{maxVal-currentVal | number :'1.1-1'}}s
+        </div>
+        <div align="center">
+          <round-progress [current]="currentVal" [max]="maxVal" [radius]="100" [stroke]="25">
+          </round-progress>
+        </div>
+        <button class="btn-start btn" *ngIf="currentVal <=0" (click)="start()"> Start</button>
+        <button class="btn-start btn" *ngIf="isFinished " (click)="reset()">Reset</button>
+        <button class="btn-start btn" *ngIf="!isFinished && currentVal >0" (click)="finish()">Finish</button>
+        <button class="btn-start btn" *ngIf="!isFinished && currentVal >0" (click)="falseAlarm()">False</button>
+        <button class="btn-start btn"(click)="addData()">Add Data</button>
+        <button class="btn-start btn"  (click)="showData()">Show Data</button>
+      </div>
+    </main>
 
-  <p>
-    This starter project is our way of helping you get a functional app running in record time.
-  </p>
-  <p>
-    Follow along on the tutorial section of the Ionic docs!
-  </p>
-  <p>
-    <button ion-button color="primary" menuToggle>Toggle Menu</button>
-  </p>
 
+    <div class="container">
+      <div style="text-align:center">
+        <h1>
+          Your Current Location
+        </h1>
+      </div>
+      <div>
+        <div class="text-white">
+          <span>Latitude: {{currentLat}}</span>
+          <span>Longitude: {{currentLong}}</span>
+        </div>
+      </div>
+      <br>
+    </div>
+  </div>
+  {{deviceConnected}} {{connectionstatus}}
+
+  <ion-list *ngFor="let emergency of emergencyContact">
+      <div ion-item >
+    {{emergency.Name}}
+    {{emergency.Number}}
+      </div>
+  </ion-list>
+  <form #form="ngForm" (ngSubmit)="submitForm()" novalidate>
+      <ion-item>
+        <ion-label>Name</ion-label>
+        <ion-input type="text" required [(ngModel)]="temp.name" [ngModelOptions]="{standalone: true}" ngControl="Name"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label>Mobile Number</ion-label>
+        <ion-input type="number" required [(ngModel)]="temp.number"  [ngModelOptions]="{standalone: true}" ngControl="Number"></ion-input>
+      </ion-item>
+      <button ion-button type="submit" block>Add Emergency Contact</button>
+    </form>
 </ion-content>

@@ -3,12 +3,12 @@
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
-    <ion-title>My First List</ion-title>
+    <ion-title>Bluetooth List</ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content>
-  <ion-list>
+  <!-- <ion-list>
     <button ion-item *ngFor="let item of items" (click)="itemTapped($event, item)">
       <ion-icon name="{{item.icon}}" item-left></ion-icon>
       {{item.title}}
@@ -16,5 +16,12 @@
         {{item.note}}
       </div>
     </button>
+  </ion-list> -->
+  <ion-list *ngFor="let device of devices">
+      <button ion-item (click)="selectDevice(device.address)">
+    {{device.name}}
+    {{device.address}}
+    </button>
   </ion-list>
+  <ion-title>{{selected}}</ion-title>
 </ion-content>
