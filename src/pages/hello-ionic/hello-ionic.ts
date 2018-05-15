@@ -9,6 +9,9 @@ import { ServiceProvider } from '../../providers/service/service';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { LoadingController } from 'ionic-angular';
 import { SMS } from '@ionic-native/sms';
+import { AndroidPermissions } from '@ionic-native/android-permissions';
+import { AlertController } from 'ionic-angular';
+import { LocalNotifications } from '@ionic-native/local-notifications';
 @Component({
   selector: 'page-hello-ionic',
   templateUrl: 'hello-ionic.html'
@@ -31,12 +34,28 @@ export class HelloIonicPage {
     name: '',
     number: ''
   };
-  constructor(private bluetoothSerial: BluetoothSerial, private service: ServiceProvider, public loadingController: LoadingController, private sms: SMS) { }
+  constructor(private bluetoothSerial: BluetoothSerial, private localNotifications: LocalNotifications, private alertCtrl: AlertController, private service: ServiceProvider, public loadingController: LoadingController, private sms: SMS, private androidPermissions: AndroidPermissions) { }
   ngOnInit() {
+
+    this.androidPermissions.checkPermission(this.androidPermissions.PERMISSION.ACCESS_FINE_LOCATION).then(
+      result => {
+        if (!result.hasPermission) {
+          this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.ACCESS_FINE_LOCATION)
+        }
+      });
+
+    this.androidPermissions.checkPermission(this.androidPermissions.PERMISSION.SEND_SMS).then(
+      result => {
+        if (!result.hasPermission) {
+          this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.SEND_SMS)
+        }
+      });
+
+
     this.service.getData();
     this.service.showData();
-    this.service.emergencyContactList.subscribe(res=>{
-      this.emergencyContact=res;
+    this.service.emergencyContactList.subscribe(res => {
+      this.emergencyContact = res;
     })
     this.service.selectedDev.subscribe(res => { this.deviceConnected = res })
     if (this.deviceConnected) {
@@ -61,6 +80,13 @@ export class HelloIonicPage {
     }
   }
 
+  notify() {
+    this.localNotifications.schedule({
+      id: 1,
+      text: 'Time remaining to send sms : ' + (this.maxVal - this.currentVal).toString(),
+    });
+  }
+
   showPosition(position) {
     this.currentLat = position.coords.latitude;
     this.currentLong = position.coords.longitude;
@@ -74,17 +100,20 @@ export class HelloIonicPage {
     interval.takeWhile(_ => !this.isFinished)
       .do(i => this.current += 0.1)
       .subscribe(res => {
+        if (this.current % 5 > 4.9) {
+          this.notify();
+        }
         if (this.isFinished && this.accidentStatus) {
           this.findMe()
         }
       })
   }
 
-  sendSms(){
-    let message='Your buddy needs your help at http://maps.google.com/maps?q='+this.currentLat+','+this.currentLong;
-    for(let i=0;i<this.emergencyContact.length;i++){
-      let messageGreeting='Hello '+this.emergencyContact[i].Name+',\n';
-      this.sms.send(this.emergencyContact[i].Number, messageGreeting+message).then(res=>{alert(res)});
+  sendSms() {
+    let message = 'Your buddy needs your help at http://maps.google.com/maps?q=' + this.currentLat + ',' + this.currentLong;
+    for (let i = 0; i < this.emergencyContact.length; i++) {
+      let messageGreeting = 'Hello ' + this.emergencyContact[i].Name + ',\n';
+      // this.sms.send(this.emergencyContact[i].Number, messageGreeting + message).then(res => { alert(res) });
     }
   }
   submitForm() {
@@ -118,4 +147,66 @@ export class HelloIonicPage {
   get isFinished() {
     return this.currentVal >= this.maxVal;
   }
+
+  deleteConfirm(id) {
+    let alert = this.alertCtrl.create({
+      title: 'Confirm Delete',
+      message: 'Do you want to delete this emergency contact?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {
+          }
+        },
+        {
+          text: 'Delete',
+          handler: () => {
+            this.deleteData(id);
+          }
+        }
+      ]
+    });
+    alert.present();
+  }
+
+  deleteData(id) {
+    this.service.deleteData(id);
+  }
+
+  updatePrompt(id) {
+    let alert = this.alertCtrl.create({
+      title: 'Update',
+      inputs: [
+        {
+          name: 'Name',
+          placeholder: 'Name'
+        },
+        {
+          name: 'Number',
+          placeholder: 'Number',
+          type: 'Number'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: data => {
+          }
+        },
+        {
+          text: 'Update',
+          handler: data => {
+            this.UpdateData(id, data);
+          }
+        }
+      ]
+    });
+    alert.present();
+  }
+  UpdateData(id, data) {
+    this.service.updateData(id, data);
+  }
+
 }

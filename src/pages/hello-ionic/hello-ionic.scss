@@ -1,6 +1,16 @@
-.btn{
+.btn {
     background: transparent;
     border: 2px solid black;
     padding: 10px 15px;
     margin: 10px;
+}
+
+.delete {
+    color: red;
+    text-align: end;
+    font-size: 18px;
+    margin-right: 20px;
+}
+.details{
+    margin-right: 20px;
 }

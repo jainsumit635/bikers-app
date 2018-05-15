@@ -25,8 +25,7 @@
         <button class="btn-start btn" *ngIf="isFinished " (click)="reset()">Reset</button>
         <button class="btn-start btn" *ngIf="!isFinished && currentVal >0" (click)="finish()">Finish</button>
         <button class="btn-start btn" *ngIf="!isFinished && currentVal >0" (click)="falseAlarm()">False</button>
-        <button class="btn-start btn"(click)="addData()">Add Data</button>
-        <button class="btn-start btn"  (click)="showData()">Show Data</button>
+        <button class="btn-start btn" (click)="notify()">Notify</button>
       </div>
     </main>
 
@@ -47,22 +46,24 @@
     </div>
   </div>
   {{deviceConnected}} {{connectionstatus}}
-
   <ion-list *ngFor="let emergency of emergencyContact">
-      <div ion-item >
-    {{emergency.Name}}
-    {{emergency.Number}}
-      </div>
+    <div ion-item>
+      <span class="delete" (click)='deleteConfirm(emergency.ID)'>&#x2717;</span>
+      <span class="details">
+        {{emergency.Name}} {{emergency.Number}}
+      </span>
+      <ion-icon name="clipboard" (click)='updatePrompt(emergency.ID)'></ion-icon>
+    </div>
   </ion-list>
   <form #form="ngForm" (ngSubmit)="submitForm()" novalidate>
-      <ion-item>
-        <ion-label>Name</ion-label>
-        <ion-input type="text" required [(ngModel)]="temp.name" [ngModelOptions]="{standalone: true}" ngControl="Name"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label>Mobile Number</ion-label>
-        <ion-input type="number" required [(ngModel)]="temp.number"  [ngModelOptions]="{standalone: true}" ngControl="Number"></ion-input>
-      </ion-item>
-      <button ion-button type="submit" block>Add Emergency Contact</button>
-    </form>
+    <ion-item>
+      <ion-label>Name</ion-label>
+      <ion-input type="text" required [(ngModel)]="temp.name" [ngModelOptions]="{standalone: true}" ngControl="Name"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Mobile Number</ion-label>
+      <ion-input type="number" required [(ngModel)]="temp.number" [ngModelOptions]="{standalone: true}" ngControl="Number"></ion-input>
+    </ion-item>
+    <button ion-button type="submit" block>Add Emergency Contact</button>
+  </form>
 </ion-content>

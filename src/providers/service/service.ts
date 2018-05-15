@@ -48,7 +48,7 @@ export class ServiceProvider {
       name: 'ionicdb.db',
       location: 'default'
     }).then((db: SQLiteObject) => {
-      db.executeSql('CREATE TABLE IF NOT EXISTS emergency(Name, Number)', {})
+      db.executeSql('CREATE TABLE IF NOT EXISTS emergency( ID INTEGER PRIMARY KEY AUTOINCREMENT, Name varchar(255), Number)', {})
         .then(res => {})
         .catch(e => alert(JSON.stringify(e)));
     }).catch(e => alert(JSON.stringify(e)));
@@ -78,7 +78,7 @@ export class ServiceProvider {
       name: 'ionicdb.db',
       location: 'default'
     }).then((db: SQLiteObject) => {
-      db.executeSql('insert into emergency Values(?,?) ', [data.name, data.number])
+      db.executeSql('insert into emergency(Name,Number) Values(?,?) ', [data.name, data.number])
         .then(res => {
           this.showData();
         })
@@ -86,5 +86,30 @@ export class ServiceProvider {
     }).catch(e => alert(JSON.stringify(e)));
   }
 
+  deleteData(data) {
+    this.sqlite.create({
+      name: 'ionicdb.db',
+      location: 'default'
+    }).then((db: SQLiteObject) => {
+      db.executeSql('DELETE from emergency where ID='+data,{})
+        .then(res => {
+          this.showData();
+        })
+        .catch(e => alert(JSON.stringify(e)));
+    }).catch(e => alert(JSON.stringify(e)));
+  }
+
+  updateData(id,data) {
+    this.sqlite.create({
+      name: 'ionicdb.db',
+      location: 'default'
+    }).then((db: SQLiteObject) => {
+      db.executeSql("UPDATE emergency SET Name ='" + data.Name + "', Number ='"+ data.Number +"' WHERE ID ="+id,{})
+        .then(res => {
+          this.showData();
+        })
+        .catch(e => alert(JSON.stringify(e)));
+    }).catch(e => alert(JSON.stringify(e)));
+  }
 
 }

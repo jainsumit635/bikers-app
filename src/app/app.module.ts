@@ -16,6 +16,9 @@ import { ServiceProvider } from '../providers/service/service';
 import { HttpClientModule } from '@angular/common/http'; 
 import { SQLite} from '@ionic-native/sqlite';
 import { SMS } from '@ionic-native/sms';
+import { AndroidPermissions } from '@ionic-native/android-permissions';
+import { LocalNotifications } from '@ionic-native/local-notifications';
+import { BackgroundMode } from '@ionic-native/background-mode';
 @NgModule({
   declarations: [
     MyApp,
@@ -43,6 +46,9 @@ import { SMS } from '@ionic-native/sms';
     BluetoothSerial,
     SQLite,
     SMS,
+    AndroidPermissions,
+    LocalNotifications,
+    BackgroundMode,
     Geolocation,
     { provide: ErrorHandler, useClass: IonicErrorHandler },
     ServiceProvider
