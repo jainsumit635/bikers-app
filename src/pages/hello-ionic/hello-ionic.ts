@@ -12,6 +12,8 @@ import { SMS } from '@ionic-native/sms';
 import { AndroidPermissions } from '@ionic-native/android-permissions';
 import { AlertController } from 'ionic-angular';
 import { LocalNotifications } from '@ionic-native/local-notifications';
+import { BackgroundMode } from '@ionic-native/background-mode';
+
 @Component({
   selector: 'page-hello-ionic',
   templateUrl: 'hello-ionic.html'
@@ -34,24 +36,13 @@ export class HelloIonicPage {
     name: '',
     number: ''
   };
-  constructor(private bluetoothSerial: BluetoothSerial, private localNotifications: LocalNotifications, private alertCtrl: AlertController, private service: ServiceProvider, public loadingController: LoadingController, private sms: SMS, private androidPermissions: AndroidPermissions) { }
-  ngOnInit() {
-
-    this.androidPermissions.checkPermission(this.androidPermissions.PERMISSION.ACCESS_FINE_LOCATION).then(
-      result => {
-        if (!result.hasPermission) {
-          this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.ACCESS_FINE_LOCATION)
-        }
-      });
-
-    this.androidPermissions.checkPermission(this.androidPermissions.PERMISSION.SEND_SMS).then(
-      result => {
-        if (!result.hasPermission) {
-          this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.SEND_SMS)
-        }
-      });
-
-
+  constructor(private bluetoothSerial: BluetoothSerial, private backgroundMode: BackgroundMode, private localNotifications: LocalNotifications, private alertCtrl: AlertController, private service: ServiceProvider, public loadingController: LoadingController, private sms: SMS, private androidPermissions: AndroidPermissions) {
+    this.backgroundMode.enable();
+    this.backgroundMode.setDefaults({
+      title: "Background Task",
+      text: "App running in background",
+      resume: true,
+  });
     this.service.getData();
     this.service.showData();
     this.service.emergencyContactList.subscribe(res => {
@@ -69,15 +60,22 @@ export class HelloIonicPage {
         }
       })
     }
+    this.service.Locations.subscribe(res=>{
+      if(res.lat){
+      this.showPosition({'lat':res.lat,'lng':res.lng});
+      }
+    });
   }
   findMe() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.showPosition(position);
-      });
-    } else {
-      alert("Geolocation is not supported by this browser.");
-    }
+    // if (navigator.geolocation) {
+    //   navigator.geolocation.getCurrentPosition((position) => {
+    //     this.showPosition(position);
+    //   });
+    // } else {
+    //   alert("Geolocation is not supported by this browser.");
+    // }
+    this.service.startTracking();
+
   }
 
   notify() {
@@ -88,8 +86,9 @@ export class HelloIonicPage {
   }
 
   showPosition(position) {
-    this.currentLat = position.coords.latitude;
-    this.currentLong = position.coords.longitude;
+    this.currentLat = position.lat;
+    this.currentLong = position.lng;
+    this.service.stopTracking();
     this.sendSms();
     this.bluetoothSerial.write('0');
   }
@@ -113,7 +112,7 @@ export class HelloIonicPage {
     let message = 'Your buddy needs your help at http://maps.google.com/maps?q=' + this.currentLat + ',' + this.currentLong;
     for (let i = 0; i < this.emergencyContact.length; i++) {
       let messageGreeting = 'Hello ' + this.emergencyContact[i].Name + ',\n';
-      // this.sms.send(this.emergencyContact[i].Number, messageGreeting + message).then(res => { alert(res) });
+      this.sms.send(this.emergencyContact[i].Number, messageGreeting + message).then(res => { });
     }
   }
   submitForm() {

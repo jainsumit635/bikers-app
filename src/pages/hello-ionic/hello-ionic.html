@@ -46,6 +46,8 @@
     </div>
   </div>
   {{deviceConnected}} {{connectionstatus}}
+  <h3>Current Latitude: {{service.lat}}</h3>
+  <h3>Current Longitude: {{service.lng}}</h3>
   <ion-list *ngFor="let emergency of emergencyContact">
     <div ion-item>
       <span class="delete" (click)='deleteConfirm(emergency.ID)'>&#x2717;</span>

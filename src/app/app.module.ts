@@ -19,6 +19,7 @@ import { SMS } from '@ionic-native/sms';
 import { AndroidPermissions } from '@ionic-native/android-permissions';
 import { LocalNotifications } from '@ionic-native/local-notifications';
 import { BackgroundMode } from '@ionic-native/background-mode';
+import { BackgroundGeolocation } from '@ionic-native/background-geolocation';
 @NgModule({
   declarations: [
     MyApp,
@@ -48,6 +49,7 @@ import { BackgroundMode } from '@ionic-native/background-mode';
     SMS,
     AndroidPermissions,
     LocalNotifications,
+    BackgroundGeolocation,
     BackgroundMode,
     Geolocation,
     { provide: ErrorHandler, useClass: IonicErrorHandler },
