@@ -135,10 +135,7 @@ export class ServiceProvider {
       interval: 2000
     };
    
-    this.backgroundGeolocation.configure(config).subscribe((location) => {
-   
-      console.log('BackgroundGeolocation:  ' + location.latitude + ',' + location.longitude);
-   
+    this.backgroundGeolocation.configure(config).subscribe((location) => {   
       // Run update inside of Angular's zone
       this.zone.run(() => {
         this.onLocationchange({'lat':location.latitude,'lng':location.longitude});
@@ -146,10 +143,7 @@ export class ServiceProvider {
         this.lng = location.longitude;
       });
    
-    }, (err) => {
-   
-      console.log(err);
-   
+    }, (err) => {   
     });
    
     // Turn ON the background-geolocation system.
@@ -165,8 +159,6 @@ export class ServiceProvider {
    
   this.watch = this.geolocation.watchPosition(options).filter((p: any) => p.code === undefined).subscribe((position: Geoposition) => {
    
-    console.log(position);
-   
     // Run update inside of Angular's zone
     this.zone.run(() => {
       this.onLocationchange({'lat':position.coords.latitude,'lng':position.coords.longitude});
@@ -180,6 +172,7 @@ export class ServiceProvider {
 
   stopTracking() {
     this.backgroundGeolocation.finish();
+    this.backgroundGeolocation.stop();
   this.watch.unsubscribe();
   }
 }

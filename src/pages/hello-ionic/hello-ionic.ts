@@ -13,6 +13,12 @@ import { AndroidPermissions } from '@ionic-native/android-permissions';
 import { AlertController } from 'ionic-angular';
 import { LocalNotifications } from '@ionic-native/local-notifications';
 import { BackgroundMode } from '@ionic-native/background-mode';
+import { mobiscroll } from '@mobiscroll/angular';
+import { Services } from '@angular/core/src/view';
+
+mobiscroll.settings = {
+  theme: 'material',
+};
 
 @Component({
   selector: 'page-hello-ionic',
@@ -36,13 +42,16 @@ export class HelloIonicPage {
     name: '',
     number: ''
   };
+  @ViewChild('myVariable')
+  myRef: any;
   constructor(private bluetoothSerial: BluetoothSerial, private backgroundMode: BackgroundMode, private localNotifications: LocalNotifications, private alertCtrl: AlertController, private service: ServiceProvider, public loadingController: LoadingController, private sms: SMS, private androidPermissions: AndroidPermissions) {
     this.backgroundMode.enable();
     this.backgroundMode.setDefaults({
       title: "Background Task",
       text: "App running in background",
       resume: true,
-  });
+      silent:true,
+    });
     this.service.getData();
     this.service.showData();
     this.service.emergencyContactList.subscribe(res => {
@@ -60,12 +69,38 @@ export class HelloIonicPage {
         }
       })
     }
-    this.service.Locations.subscribe(res=>{
-      if(res.lat){
-      this.showPosition({'lat':res.lat,'lng':res.lng});
+    this.service.Locations.subscribe(res => {
+      if (res.lat) {
+        this.showPosition({ 'lat': res.lat, 'lng': res.lng });
       }
     });
   }
+
+  timer: number;
+  timerSettings: any = {
+    display: 'inline',
+    targetTime: 10,
+    maxWheel: 'minutes',
+    minWidth: 100,
+    buttons: [],
+    // onFinish: function (event, inst)  {
+    //   // this.current = this.max;
+    //   // this.accidentStatus = true;
+    //   // this.findMe();
+    //   mobiscroll.alert({
+    //     title: "Countdown finished",
+    //     message: JSON.stringify(event)
+
+    //   });
+    // },
+    // onReset: function (event, inst) {
+    //   // Your custom event handler goes here
+    // },
+    // onStop: function (event, inst) {
+    //   // Your custom event handler goes here
+    // },
+  };
+
   findMe() {
     // if (navigator.geolocation) {
     //   navigator.geolocation.getCurrentPosition((position) => {
@@ -75,7 +110,7 @@ export class HelloIonicPage {
     //   alert("Geolocation is not supported by this browser.");
     // }
     this.service.startTracking();
-
+    this.backgroundMode.moveToForeground();
   }
 
   notify() {
@@ -88,24 +123,24 @@ export class HelloIonicPage {
   showPosition(position) {
     this.currentLat = position.lat;
     this.currentLong = position.lng;
-    this.service.stopTracking();
     this.sendSms();
     this.bluetoothSerial.write('0');
+    this.service.stopTracking();
   }
 
   start() {
-
-    const interval = Observable.interval(100);
-    interval.takeWhile(_ => !this.isFinished)
-      .do(i => this.current += 0.1)
-      .subscribe(res => {
-        if (this.current % 5 > 4.9) {
-          this.notify();
-        }
-        if (this.isFinished && this.accidentStatus) {
-          this.findMe()
-        }
-      })
+    this.myRef.instance.start();
+    // const interval = Observable.interval(100);
+    // interval.takeWhile(_ => !this.isFinished)
+    //   .do(i => this.current += 0.1)
+    //   .subscribe(res => {
+    //     if (this.current % 5 > 4.9) {
+    //       this.notify();
+    //     }
+    //     if (this.isFinished && this.accidentStatus) {
+    //       this.findMe()
+    //     }
+    //   })
   }
 
   sendSms() {
@@ -124,11 +159,13 @@ export class HelloIonicPage {
     this.findMe()
   }
   falseAlarm() {
+    this.myRef.instance.stop();
     this.current = this.max;
     this.accidentStatus = false;
     this.bluetoothSerial.write('0');
   }
   reset() {
+    this.myRef.instance.reset();
     this.current = 0;
     this.accidentStatus = true;
     this.currentLat = '';

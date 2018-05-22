@@ -14,21 +14,25 @@
     <main class="content" fxLayout="column" align="center">
       <h1>Timer</h1>
       <div class="progress-wrapper" *ngIf="maxVal">
-        <div class="text" *ngIf="!isFinished">
+        <!-- <div class="text" *ngIf="!isFinished">
           {{maxVal-currentVal | number :'1.1-1'}}s
-        </div>
-        <div align="center">
+        </div> -->
+        <!-- <div align="center">
           <round-progress [current]="currentVal" [max]="maxVal" [radius]="100" [stroke]="25">
           </round-progress>
-        </div>
-        <button class="btn-start btn" *ngIf="currentVal <=0" (click)="start()"> Start</button>
-        <button class="btn-start btn" *ngIf="isFinished " (click)="reset()">Reset</button>
-        <button class="btn-start btn" *ngIf="!isFinished && currentVal >0" (click)="finish()">Finish</button>
-        <button class="btn-start btn" *ngIf="!isFinished && currentVal >0" (click)="falseAlarm()">False</button>
-        <button class="btn-start btn" (click)="notify()">Notify</button>
+        </div> -->
+        <button class="btn-start btn"  (click)="start()"> Start</button>
+        <button class="btn-start btn" (click)="reset()">Reset</button>
+        <button class="btn-start btn" (click)="finish()">Finish</button>
+        <button class="btn-start btn" (click)="falseAlarm()">False</button>
       </div>
     </main>
 
+    <mbsc-form>
+      <div class="mbsc-form-group">
+        <div #myVariable="mobiscroll" [(ngModel)]="timer" (onFinish)="findMe()" mbsc-timer [mbsc-options]="timerSettings"></div>
+      </div>
+    </mbsc-form>
 
     <div class="container">
       <div style="text-align:center">
