@@ -29,7 +29,7 @@ import { BackgroundGeolocation } from '@ionic-native/background-geolocation';
     ListPage
   ],
   imports: [ 
-    MbscModule,
+    MbscModule, 
     BrowserModule,
     IonicModule.forRoot(MyApp),
     RoundProgressModule,

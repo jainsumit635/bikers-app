@@ -23,6 +23,10 @@ export class ServiceProvider {
   recievedata = this.recievedatas.asObservable();
   private emergencyContact = new BehaviorSubject<any>([])
   emergencyContactList = this.emergencyContact.asObservable();
+
+  private Users = new BehaviorSubject<any>([])
+  User = this.Users.asObservable();
+
   constructor(public backgroundGeolocation:BackgroundGeolocation, public geolocation:Geolocation, public zone: NgZone, public http: HttpClient, private bluetoothSerial: BluetoothSerial, private sqlite: SQLite) {
   }
 
@@ -39,6 +43,11 @@ export class ServiceProvider {
 
   onEmergencyChange(data) {
     this.emergencyContact.next(data);
+  }
+
+
+  onUserChange(data) {
+    this.Users.next(data);
   }
 
   connectbluetooth(mac) {
@@ -63,6 +72,29 @@ export class ServiceProvider {
     }).catch(e => alert(JSON.stringify(e)));
   }
 
+
+  createLocationTable() {
+    this.sqlite.create({
+      name: 'ionicdb.db',
+      location: 'default'
+    }).then((db: SQLiteObject) => {
+      db.executeSql('CREATE TABLE IF NOT EXISTS accidents( ID INTEGER PRIMARY KEY AUTOINCREMENT, Latitude varchar(255), Longitude varchar(255))', {})
+        .then(res => { })
+        .catch(e => alert(JSON.stringify(e)));
+    }).catch(e => alert(JSON.stringify(e)));
+  }
+
+  createUserTable() {
+    this.sqlite.create({
+      name: 'ionicdb.db',
+      location: 'default'
+    }).then((db: SQLiteObject) => {
+      db.executeSql('CREATE TABLE IF NOT EXISTS user( ID INTEGER PRIMARY KEY AUTOINCREMENT, Name varchar(255), Number)', {})
+        .then(res => { })
+        .catch(e => alert(JSON.stringify(e)));
+    }).catch(e => alert(JSON.stringify(e)));
+  }
+
   showData() {
     this.sqlite.create({
       name: 'ionicdb.db',
@@ -82,12 +114,61 @@ export class ServiceProvider {
     }).catch(e => alert(e));
   }
 
+
+  showUserData() {
+    this.sqlite.create({
+      name: 'ionicdb.db',
+      location: 'default'
+    }).then((db: SQLiteObject) => {
+      db.executeSql('SELECT * from user', {})
+        .then(res => {
+          if (res.rows.length > 0) {
+            let temp = [];
+            for (let i = 0; i < res.rows.length; i++) {
+              temp.push(res.rows.item(i))
+            }
+            this.onUserChange(temp)
+          }
+        })
+        .catch(e => alert(e));
+    }).catch(e => alert(e));
+  }
+
+
   addData(data) {
     this.sqlite.create({
       name: 'ionicdb.db',
       location: 'default'
     }).then((db: SQLiteObject) => {
       db.executeSql('insert into emergency(Name,Number) Values(?,?) ', [data.name, data.number])
+        .then(res => {
+          this.showData();
+        })
+        .catch(e => alert(JSON.stringify(e)));
+    }).catch(e => alert(JSON.stringify(e)));
+  }
+
+
+
+  addUserData(data) {
+    this.sqlite.create({
+      name: 'ionicdb.db',
+      location: 'default'
+    }).then((db: SQLiteObject) => {
+      db.executeSql('insert into user(Name,Number) Values(?,?) ', [data.name, data.number])
+        .then(res => {
+          this.showData();
+        })
+        .catch(e => alert(JSON.stringify(e)));
+    }).catch(e => alert(JSON.stringify(e)));
+  }
+
+  addLocationData(data) {
+    this.sqlite.create({
+      name: 'ionicdb.db',
+      location: 'default'
+    }).then((db: SQLiteObject) => {
+      db.executeSql('insert into accidents(Latitude,Longitude) Values(?,?) ', [data.Latitude, data.Longitude])
         .then(res => {
           this.showData();
         })

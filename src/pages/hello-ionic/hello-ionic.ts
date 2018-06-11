@@ -1,6 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { Nav } from 'ionic-angular';
+import { Nav, NavController} from 'ionic-angular';
 import 'rxjs/add/observable/interval';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/takeWhile';
@@ -9,13 +8,10 @@ import { ServiceProvider } from '../../providers/service/service';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { LoadingController } from 'ionic-angular';
 import { SMS } from '@ionic-native/sms';
-import { AndroidPermissions } from '@ionic-native/android-permissions';
 import { AlertController } from 'ionic-angular';
 import { LocalNotifications } from '@ionic-native/local-notifications';
 import { BackgroundMode } from '@ionic-native/background-mode';
 import { mobiscroll } from '@mobiscroll/angular';
-import { Services } from '@angular/core/src/view';
-
 mobiscroll.settings = {
   theme: 'material',
 };
@@ -44,7 +40,7 @@ export class HelloIonicPage {
   };
   @ViewChild('myVariable')
   myRef: any;
-  constructor(private bluetoothSerial: BluetoothSerial, private backgroundMode: BackgroundMode, private localNotifications: LocalNotifications, private alertCtrl: AlertController, private service: ServiceProvider, public loadingController: LoadingController, private sms: SMS, private androidPermissions: AndroidPermissions) {
+  constructor(private bluetoothSerial: BluetoothSerial, public navCtrl: NavController, private backgroundMode: BackgroundMode, private localNotifications: LocalNotifications, private alertCtrl: AlertController, private service: ServiceProvider, public loadingController: LoadingController, private sms: SMS) {
     this.backgroundMode.enable();
     this.backgroundMode.setDefaults({
       title: "Background Task",
@@ -54,6 +50,7 @@ export class HelloIonicPage {
     });
     this.service.getData();
     this.service.showData();
+    this.service.createLocationTable();
     this.service.emergencyContactList.subscribe(res => {
       this.emergencyContact = res;
     })
@@ -83,22 +80,6 @@ export class HelloIonicPage {
     maxWheel: 'minutes',
     minWidth: 100,
     buttons: [],
-    // onFinish: function (event, inst)  {
-    //   // this.current = this.max;
-    //   // this.accidentStatus = true;
-    //   // this.findMe();
-    //   mobiscroll.alert({
-    //     title: "Countdown finished",
-    //     message: JSON.stringify(event)
-
-    //   });
-    // },
-    // onReset: function (event, inst) {
-    //   // Your custom event handler goes here
-    // },
-    // onStop: function (event, inst) {
-    //   // Your custom event handler goes here
-    // },
   };
 
   findMe() {
@@ -125,6 +106,7 @@ export class HelloIonicPage {
     this.currentLong = position.lng;
     this.sendSms();
     this.bluetoothSerial.write('0');
+    this.service.addLocationData({'Latitude':this.currentLat,'Longitude':this.currentLong});
     this.service.stopTracking();
   }
 
@@ -154,6 +136,7 @@ export class HelloIonicPage {
     this.service.addData(this.temp);
   }
   finish() {
+    this.myRef.instance.stop();
     this.current = this.max;
     this.accidentStatus = true;
     this.findMe()
