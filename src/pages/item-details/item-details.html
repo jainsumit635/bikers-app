@@ -1,55 +1,20 @@
 <ion-header>
-    <ion-navbar>
-      <button ion-button menuToggle>
-        <ion-icon name="menu"></ion-icon>
-      </button>
-      <ion-title>Bikes</ion-title>
-    </ion-navbar>
-  </ion-header>
-  
-  
-  <ion-content padding>
-  
-    <div fxLayout="column" fxLayout.xs="column" fxLayoutGap="10px" fxLayoutGap.xs="0">
-        <!-- <div  *ngIf="currentVal <=0" > {{start()}}</div> -->
+  <ion-navbar>
+    <ion-title>Add Profile</ion-title>
+  </ion-navbar>
+</ion-header>
 
-      <main class="content" fxLayout="column" align="center">
-        <h1>Timer</h1>
-        <div class="progress-wrapper" *ngIf="maxVal">
-          <div class="text" *ngIf="!isFinished">
-            {{maxVal-currentVal | number :'1.1-1'}}s
-          </div>
-          <div align="center">
-            <round-progress [current]="currentVal" [max]="maxVal" [radius]="100" [stroke]="25">
-            </round-progress>
-          </div>
-          <button class="btn-start btn" *ngIf="currentVal <=0" (click)="start()"> Start</button>
-          <button class="btn-start btn" *ngIf="isFinished " (click)="reset()">Reset</button>
-          <button class="btn-start btn" *ngIf="!isFinished && currentVal >0" (click)="finish()">Finish</button>
-          <button class="btn-start btn" *ngIf="!isFinished && currentVal >0" (click)="falseAlarm()">False</button>
-        </div>
-      </main>
-    
-    
-      <div class="container">
-        <div style="text-align:center">
-          <h1>
-            Your Current Location
-          </h1>
-        </div>
-        <div>
-          <!-- <div *ngIf="accidentStatus && isFinished">
-            {{findMe()}}
-          </div> -->
-          <div class="text-white">
-            <span>Longitude: {{currentLong}}</span>
-            <span>Longitude: {{currentLat}}</span>
-          </div>
-        </div>
-        <br>
-      </div>
-    </div>
-  {{deviceConnected}}
-  {{connectionstatus}}
-  </ion-content>
-  
+
+<ion-content padding>
+  <form #form="ngForm" (ngSubmit)="submitForm()" novalidate>
+    <ion-item>
+      <ion-label>Name</ion-label>
+      <ion-input type="text" required [(ngModel)]="temp.name" [ngModelOptions]="{standalone: true}" ngControl="Name"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Mobile Number</ion-label>
+      <ion-input type="number" required [(ngModel)]="temp.number" [ngModelOptions]="{standalone: true}" ngControl="Number"></ion-input>
+    </ion-item>
+    <button ion-button type="submit" block>Add Profile</button>
+  </form>
+</ion-content>

@@ -1,6 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { Nav } from 'ionic-angular';
+import { Nav, NavController} from 'ionic-angular';
 import 'rxjs/add/observable/interval';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/takeWhile';
@@ -9,10 +8,13 @@ import { ServiceProvider } from '../../providers/service/service';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { LoadingController } from 'ionic-angular';
 import { SMS } from '@ionic-native/sms';
-import { AndroidPermissions } from '@ionic-native/android-permissions';
 import { AlertController } from 'ionic-angular';
 import { LocalNotifications } from '@ionic-native/local-notifications';
 import { BackgroundMode } from '@ionic-native/background-mode';
+import { mobiscroll } from '@mobiscroll/angular';
+mobiscroll.settings = {
+  theme: 'material',
+};
 
 @Component({
   selector: 'page-hello-ionic',
@@ -36,15 +38,19 @@ export class HelloIonicPage {
     name: '',
     number: ''
   };
-  constructor(private bluetoothSerial: BluetoothSerial, private backgroundMode: BackgroundMode, private localNotifications: LocalNotifications, private alertCtrl: AlertController, private service: ServiceProvider, public loadingController: LoadingController, private sms: SMS, private androidPermissions: AndroidPermissions) {
+  @ViewChild('myVariable')
+  myRef: any;
+  constructor(private bluetoothSerial: BluetoothSerial, public navCtrl: NavController, private backgroundMode: BackgroundMode, private localNotifications: LocalNotifications, private alertCtrl: AlertController, private service: ServiceProvider, public loadingController: LoadingController, private sms: SMS) {
     this.backgroundMode.enable();
     this.backgroundMode.setDefaults({
       title: "Background Task",
       text: "App running in background",
       resume: true,
-  });
+      silent:true,
+    });
     this.service.getData();
     this.service.showData();
+    this.service.createLocationTable();
     this.service.emergencyContactList.subscribe(res => {
       this.emergencyContact = res;
     })
@@ -60,12 +66,22 @@ export class HelloIonicPage {
         }
       })
     }
-    this.service.Locations.subscribe(res=>{
-      if(res.lat){
-      this.showPosition({'lat':res.lat,'lng':res.lng});
+    this.service.Locations.subscribe(res => {
+      if (res.lat) {
+        this.showPosition({ 'lat': res.lat, 'lng': res.lng });
       }
     });
   }
+
+  timer: number;
+  timerSettings: any = {
+    display: 'inline',
+    targetTime: 10,
+    maxWheel: 'minutes',
+    minWidth: 100,
+    buttons: [],
+  };
+
   findMe() {
     // if (navigator.geolocation) {
     //   navigator.geolocation.getCurrentPosition((position) => {
@@ -75,7 +91,7 @@ export class HelloIonicPage {
     //   alert("Geolocation is not supported by this browser.");
     // }
     this.service.startTracking();
-
+    this.backgroundMode.moveToForeground();
   }
 
   notify() {
@@ -88,24 +104,25 @@ export class HelloIonicPage {
   showPosition(position) {
     this.currentLat = position.lat;
     this.currentLong = position.lng;
-    this.service.stopTracking();
     this.sendSms();
     this.bluetoothSerial.write('0');
+    this.service.addLocationData({'Latitude':this.currentLat,'Longitude':this.currentLong});
+    this.service.stopTracking();
   }
 
   start() {
-
-    const interval = Observable.interval(100);
-    interval.takeWhile(_ => !this.isFinished)
-      .do(i => this.current += 0.1)
-      .subscribe(res => {
-        if (this.current % 5 > 4.9) {
-          this.notify();
-        }
-        if (this.isFinished && this.accidentStatus) {
-          this.findMe()
-        }
-      })
+    this.myRef.instance.start();
+    // const interval = Observable.interval(100);
+    // interval.takeWhile(_ => !this.isFinished)
+    //   .do(i => this.current += 0.1)
+    //   .subscribe(res => {
+    //     if (this.current % 5 > 4.9) {
+    //       this.notify();
+    //     }
+    //     if (this.isFinished && this.accidentStatus) {
+    //       this.findMe()
+    //     }
+    //   })
   }
 
   sendSms() {
@@ -119,16 +136,19 @@ export class HelloIonicPage {
     this.service.addData(this.temp);
   }
   finish() {
+    this.myRef.instance.stop();
     this.current = this.max;
     this.accidentStatus = true;
     this.findMe()
   }
   falseAlarm() {
+    this.myRef.instance.stop();
     this.current = this.max;
     this.accidentStatus = false;
     this.bluetoothSerial.write('0');
   }
   reset() {
+    this.myRef.instance.reset();
     this.current = 0;
     this.accidentStatus = true;
     this.currentLat = '';
